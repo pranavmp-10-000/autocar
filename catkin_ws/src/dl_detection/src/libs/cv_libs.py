@@ -38,7 +38,7 @@ def check_red(image):
 def check_signal_state(image, bboxes):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     max_idx, max_area = get_bbox_area(bboxes)
-    x1,y1,x2,y2 = max_area
+    x1,y1,x2,y2 = bboxes[max_idx].astype(int)
     cropped_image = image[y1:y2,x1:x2,:]
     is_green = check_green(cropped_image)
     is_red = check_red(cropped_image)
