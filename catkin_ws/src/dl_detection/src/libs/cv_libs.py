@@ -8,7 +8,10 @@ def get_bbox_area(bboxes):
         height = i[3] - i[1]
         area = width*height
         areas.append(area)
-    max_area_idx, max_area = np.argmax(areas), np.max(areas)
+    if len(areas)>0:
+        max_area_idx, max_area = np.argmax(areas), np.max(areas)
+    else:
+        max_area_idx, max_area = -1,  0
     return max_area_idx, max_area
 
 def check_green(image):
@@ -24,7 +27,7 @@ def check_green(image):
         return False
 
 def check_red(image):
-    ret, thres = cv2.threshold(image[:,:,0],200,255,0)
+    ret, thres = cv2.threshold(image[:,:,0],180,255,0)
     edged = cv2.Canny(thres, 30, 225,4)
     contours, hierarchy = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     if len(contours)>0:
@@ -38,13 +41,16 @@ def check_red(image):
 def check_signal_state(image, bboxes):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     max_idx, max_area = get_bbox_area(bboxes)
-    x1,y1,x2,y2 = bboxes[max_idx].astype(int)
-    cropped_image = image[y1:y2,x1:x2,:]
-    is_green = check_green(cropped_image)
-    is_red = check_red(cropped_image)
-    if is_green:
+    if max_idx >0:
+        x1,y1,x2,y2 = bboxes[max_idx].astype(int)
+        cropped_image = image[y1:y2,x1:x2,:]
+        is_green = check_green(cropped_image)
+        is_red = check_red(cropped_image)
+        if is_green:
+            return 1
+        elif is_red:
+            return 0
+    else:
         return 1
-    elif is_red:
-        return 0
 
 

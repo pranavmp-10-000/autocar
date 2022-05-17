@@ -15,15 +15,15 @@ class ObjectDetection:
             self.sess = ort.InferenceSession(model_path, providers=[('CUDAExecutionProvider'),'CPUExecutionProvider'])
             
     def _preprocess_image(self, image):
-        image = cv2.resize(image,(512,512))/255.0
+        image = image/255.0#cv2.resize(image,(512,512))/255.0
         pred_inp_img = np.float16(image)[np.newaxis, :, :, :]
         pred_inp_img = np.ascontiguousarray(np.rollaxis(pred_inp_img, 3, 1))
         return pred_inp_img
     
-    def infer(self, image, conf_thres = 0.5):
+    def infer(self, image, conf_thres = 0.5, class_det=0):
         processed_image = self._preprocess_image(image)
         pred = self.sess.run(None, {self.sess.get_inputs()[0].name: processed_image})
-        boxes, scores, classes = self.process_outputs(pred, conf_thres)
+        boxes, scores, classes = self.process_outputs(pred, conf_thres, class_det)
         return boxes, scores, classes
 
     def _extract_bbs(self,outputs, conf_thres):
@@ -91,16 +91,17 @@ class ObjectDetection:
         # y[:, 1] = x[:, 1] - x[:, 3] / 2
         # y[:, 3] = x[:, 1] + x[:, 3] / 2
         return y     
-    def nms(self, pred, iou_thres = 0.3, origin_w=0, orign_h=0):
+    def nms(self, pred, iou_thres = 0.3, origin_w=0, orign_h=0, class_det=0):
         boxes = self.xywh2xyxy(pred[...,0 :4], INPUT_W, INPUT_H)
         confs = pred[:, 4]
-        classes = np.argmax(pred[:, 5:6], axis=-1)
+        class_to_detect = class_det+5
+        classes = np.argmax(pred[:, class_to_detect:class_to_detect+1], axis=-1)
         return self._non_max_suppression(boxes, confs, classes, iou_thres)
 
-    def process_outputs(self, outputs, conf_thres):
+    def process_outputs(self, outputs, conf_thres, class_det):
         outputs = np.array(outputs[-1]).reshape(OUTPUT_SIZE)
         outputs = outputs[outputs[...,4]>conf_thres]
-        boxes, scores, classes = self.nms(outputs)
+        boxes, scores, classes = self.nms(outputs, class_det)
         # print('Classes:',classes.shape)
         # print('Boxes:',boxes)
         # print('Scores:',scores.shape)

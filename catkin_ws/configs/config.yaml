@@ -1,0 +1,5 @@
+cv_camera:
+  - rate: 20
+  - image_width: 640
+  - image_height: 640
+  
