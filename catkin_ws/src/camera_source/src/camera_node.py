@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin python3
 
 from sensor_msgs.msg import Image
 import rospy
@@ -22,7 +22,7 @@ class CameraNode:
             'cv_camera/image_raw', Image, self.process_image)
 
     def process_image(self, image):
-        image = self.bridge.imgmsg_to_cv2(image)
+        image = self.bridge.imgmsg_to_cv2(image,'bgr8')
         image = cv2.resize(image, (512, 512))
         # #image = image.astype(np.float16)
         # pred_inp_img = image[np.newaxis, :, :, :]

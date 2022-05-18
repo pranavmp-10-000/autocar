@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin python3
 
-import tensorrt
-import pycuda
 import rospy
 import rospy
 import numpy as np
@@ -9,7 +7,6 @@ import cv2
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from std_msgs.msg import Int32
-import threading
 from libs.cv_libs import check_signal_state
 from libs.onnx_inference import ObjectDetection
 import logging
@@ -19,7 +16,7 @@ MODEL_PATH = 'res/models/traffic_sign.onnx'
 
 class TrafficLightDetectionNode:
     def __init__(self) -> None:
-        self.traffic_engine = ObjectDetection(MODEL_PATH, False)
+        self.traffic_engine = ObjectDetection(MODEL_PATH, True)
         logging.log(logging.INFO, 'Engine Created')
         self.bridge = CvBridge()
         self._init_publisher()
@@ -32,10 +29,11 @@ class TrafficLightDetectionNode:
 
     def _init_subscriber(self):
         self.image_sub = rospy.Subscriber(
-            'camera_topic/image', Image, self.run_inference, queue_size=4)
+            'cv_camera/image_raw', Image, self.run_inference, queue_size=4)
 
     def run_inference(self, data):
         img_data = self.bridge.imgmsg_to_cv2(data, 'bgr8')
+        img_data = cv2.resize(img_data, (512, 512))
         boxes, scores, classes = self.traffic_engine.infer(
             img_data, conf_thres=0.2, class_det=0)
         signal_state = check_signal_state(img_data, boxes)
