@@ -16,7 +16,7 @@ class ObjectDetection:
             
     def _preprocess_image(self, image):
         image = cv2.resize(image,(512,512))/255.0
-        pred_inp_img = np.float32(image)[np.newaxis, :, :, :]
+        pred_inp_img = np.float16(image)[np.newaxis, :, :, :]
         pred_inp_img = np.ascontiguousarray(np.rollaxis(pred_inp_img, 3, 1))
         return pred_inp_img
     

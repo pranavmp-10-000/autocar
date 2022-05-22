@@ -15,7 +15,7 @@ def get_bbox_area(bboxes):
     return max_area_idx, max_area
 
 def check_green(image):
-    ret, thres = cv2.threshold(image[:,:,1],200,255,0)
+    ret, thres = cv2.threshold(image[:,:,1],150,255,0)
     edged = cv2.Canny(thres, 30, 225,4)
     contours, hierarchy = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     if len(contours)>0:
@@ -27,7 +27,7 @@ def check_green(image):
         return False
 
 def check_red(image):
-    ret, thres = cv2.threshold(image[:,:,0],180,255,0)
+    ret, thres = cv2.threshold(image[:,:,0],120,255,0)
     edged = cv2.Canny(thres, 30, 225,4)
     contours, hierarchy = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     if len(contours)>0:

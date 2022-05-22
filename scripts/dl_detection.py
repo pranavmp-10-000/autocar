@@ -6,7 +6,7 @@ from onnx_inference import ObjectDetection
 from cv_libs import check_signal_state
 import time
 
-TRAFFIC_DET_MODEL_PATH = 'scripts/models/traffic_sign.onnx'
+TRAFFIC_DET_MODEL_PATH = 'scripts/models/trafficsign.onnx'
 HUMAN_DET_MODEL_PATH = 'scripts/models/human_recog.onnx'
 
 
@@ -28,15 +28,18 @@ class DLObjectDetecction():
 
     def traffic_run_inference(self):
         boxes, scores, classes = self.traffic_engine.infer(
-            self.preproc_img_data, conf_thres=0.2, class_det=-1)
+            self.preproc_img_data, conf_thres=0.7, class_det=8)
         signal_state = check_signal_state(self.image, boxes)
-        # self.draw_boxes(self.image, boxes)
-        self.traffic_state = signal_state
+        #self.draw_boxes(self.image, boxes, 'traffic')
+        if signal_state==None:
+            self.traffic_state = 1
+        else:
+            self.traffic_state = signal_state
 
     def human_run_inference(self):
         boxes, scores, classes = self.human_engine.infer(
-            self.preproc_img_data, conf_thres=0.2, class_det=0)
-        #self.draw_boxes(self.image, boxes)
+            self.preproc_img_data, conf_thres=0.5, class_det=0)
+        #self.draw_boxes(self.image, boxes, 'human')
         if len(boxes) > 0:
             self.human_state = 1
         else:
@@ -51,7 +54,7 @@ class DLObjectDetecction():
         elapsed_time = end_time - start_time
         return elapsed_time
 
-    def draw_boxes(self, img, bboxes):
+    def draw_boxes(self, img, bboxes, type=''):
         #img = cv2.resize(img, (512, 512))
         bboxes = bboxes.astype(int)
         img = img.astype(np.uint8)
@@ -59,5 +62,5 @@ class DLObjectDetecction():
             x1, y1, x2, y2 = i
             img = cv2.rectangle(self.image, (x1, y1),
                                 (x2, y2), (0, 255, 255), 1)
-        cv2.imshow('Detection_boxes', img)
+        cv2.imshow(f'{type} Detection_boxes', img)
         cv2.waitKey(30)
