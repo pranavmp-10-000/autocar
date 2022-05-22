@@ -1,6 +1,6 @@
-#!/usr/bin python3
+#!/usr/bin/env python3
 
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CompressedImage
 import rospy
 from cv_bridge import CvBridge
 import cv2
@@ -15,14 +15,14 @@ class CameraNode:
 
     def _init_publisher(self):
         self.cam_pub = rospy.Publisher(
-            'camera_topic/image', Image, queue_size=4)
+            'camera_topic/image', Image, queue_size=1)
 
     def _init_subscriber(self):
         self.cam_sub = rospy.Subscriber(
-            'cv_camera/image_raw', Image, self.process_image)
+            'cv_camera/image_raw/compressed', CompressedImage, self.process_image, queue_size=1)
 
     def process_image(self, image):
-        image = self.bridge.imgmsg_to_cv2(image,'bgr8')
+        image = self.bridge.compressed_imgmsg_to_cv2(image,'bgr8')
         image = cv2.resize(image, (512, 512))
         # #image = image.astype(np.float16)
         # pred_inp_img = image[np.newaxis, :, :, :]

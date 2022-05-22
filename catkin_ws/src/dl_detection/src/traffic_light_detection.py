@@ -1,4 +1,4 @@
-#!/usr/bin python3
+#!/usr/bin/env python3
 
 import rospy
 import rospy
@@ -11,31 +11,31 @@ from libs.cv_libs import check_signal_state
 from libs.onnx_inference import ObjectDetection
 import logging
 
-MODEL_PATH = 'res/models/traffic_sign.onnx'
+MODEL_PATH = 'res/models/yolov5s.onnx'
 
 
 class TrafficLightDetectionNode:
     def __init__(self) -> None:
-        self.traffic_engine = ObjectDetection(MODEL_PATH, True)
+        
         logging.log(logging.INFO, 'Engine Created')
         self.bridge = CvBridge()
         self._init_publisher()
         self._init_subscriber()
-
+        self.traffic_engine = ObjectDetection(MODEL_PATH, True)
     def _init_publisher(self):
-        self.signal_pub = rospy.Publisher('signal_state', Int32, queue_size=2)
+        self.signal_pub = rospy.Publisher('signal_state', Int32, queue_size=1)
         self.image_det_pub = rospy.Publisher(
-            'camera_top/trafsig_detected_image', Image, queue_size=4)
+            'camera_top/trafsig_detected_image', Image, queue_size=1)
 
     def _init_subscriber(self):
         self.image_sub = rospy.Subscriber(
-            'cv_camera/image_raw', Image, self.run_inference, queue_size=4)
+            'camera_topic/image', Image, self.run_inference, queue_size=1)
 
     def run_inference(self, data):
         img_data = self.bridge.imgmsg_to_cv2(data, 'bgr8')
-        img_data = cv2.resize(img_data, (512, 512))
+        #img_data = cv2.resize(img_data, (512, 512))
         boxes, scores, classes = self.traffic_engine.infer(
-            img_data, conf_thres=0.2, class_det=0)
+            img_data, conf_thres=0.2, class_det=8)
         signal_state = check_signal_state(img_data, boxes)
         self.draw_boxes(img_data, boxes)
         self.signal_pub.publish(signal_state)

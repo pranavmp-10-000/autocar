@@ -4,29 +4,34 @@ from numpy import unicode_
 import serial
 from time import time
 import rospy
-from sensor_msgs.msg import String
+from std_msgs.msg import String
 from std_msgs.msg import Int16, Float32
 import io
 class ArduinoSerial:
     def __init__(self) -> None:
-        self.ser = serial.Serial('/dev/ttyUSB0')
-        self.ser.baudrate = 19200
-        self.ser.write('Serial Initialized')
+        self.ser = serial.Serial('/dev/ttyACM0')
+        self.ser.baudrate = 9600
+        self.ser.write('Serial Initialized'.encode('utf-8'))
         self._init_subscriber()
 
     def _init_subscriber(self):
         self.state_subscriber = rospy.Subscriber('motion_planner',Int16, self.send_commands)
 
     def send_commands(self, data):
+        print(data)
         if data==0:
-            self.ser.write(str('stop').encode('utf-8'))
+            self.ser.write(str('0').encode('utf-8'))
             self.ser.flush()
         elif data==1:
-            self.ser.write(str('slow').encode('utf-8'))
+            self.ser.write(str('1').encode('utf-8'))
             self.ser.flush()
         elif data==2:
-            self.ser.write(str('go').encode('utf-8'))
+            self.ser.write(str('2').encode('utf-8'))
             self.ser.flush()
+        else:
+            self.ser.write(str('0').encode('utf-8'))
+            self.ser.flush()
+
     
     def close(self):
         self.ser.close()
