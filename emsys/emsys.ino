@@ -12,6 +12,7 @@ void setup() {
   // pinMode(2, OUTPUT); //Back Right P
   // pinMode(3, OUTPUT); //Back Right N
   Serial.begin(9600);
+  Serial.setTimeout(1);
 }
 
 void loop() {
@@ -19,7 +20,7 @@ void loop() {
   if (Serial.available()){
     int traffic_state = Serial.parseInt();
     Serial.println(traffic_state);
-    if(traffic_state==1){
+    if(traffic_state==2){
       forward();
     }
     else{
