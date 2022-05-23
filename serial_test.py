@@ -3,8 +3,8 @@ import serial
 import time
 
 def init_serial():
-    ser = serial.Serial('/dev/ttyACM0')
-    ser.baudrate = 9600
+    ser = serial.Serial('/dev/ttyACM0',9600,timeout=0.1)
+    #ser.baudrate = 9600
     ser.write('Serial Initialized'.encode('utf-8'))
     return ser
 if __name__ == '__main__':
@@ -13,7 +13,8 @@ if __name__ == '__main__':
         while(KeyboardInterrupt):
             i = randint(0,2)
             ser.write(bytes(f'{i}','utf-8'))
-            time.sleep(0.1)
+            ser.flush()
+            time.sleep(0.05)
             data = ser.readline()
             print(data)
     except KeyboardInterrupt:
