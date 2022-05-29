@@ -19,7 +19,7 @@ class Robot:
 
     def run(self):
         
-        print(f'Camera Initialized: {cap.get(3)}')
+        print(f'Camera Initialized with W: {self.cap.get(3)}')
         start_time = time.time()
         dl_engine = dl.DLObjectDetecction()
         end_time = time.time()
