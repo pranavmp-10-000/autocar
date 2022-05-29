@@ -11,11 +11,14 @@ if __name__ == '__main__':
     try:
         ser = init_serial()
         while(KeyboardInterrupt):
-            i = randint(0,2)
+            i = randint(0,1)
             ser.write(bytes(f'{i}','utf-8'))
             ser.flush()
             time.sleep(0.05)
             data = ser.readline()
             print(data)
     except KeyboardInterrupt:
+        ser.write(bytes(f'0','utf-8'))
+        ser.flush()
+        ser.close()
         print('Keyboard Interrupt Captured')
