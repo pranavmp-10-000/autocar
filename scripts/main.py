@@ -42,12 +42,11 @@ class Robot:
                 el_t = round(el_t, 3)
                 i = i+1
                 states = states + dl_engine.human_state
+                #@@@@@@ Traffic State: {str(dl_engine.traffic_state)}
                 print(
-                    f'Human State: {str(dl_engine.human_state)} @@@@@@ Traffic State: {str(dl_engine.traffic_state)} in {el_t}s')
-                # if i<10:
-                #     cv2.imwrite(f'/home/pranav/autocar/scripts/imgs/{str(i)}.jpg',pred_img)
-                # else:
-                #     i=0
+                    f'Human State: {str(dl_engine.human_state)} in {el_t}s')
+                
+                cv2.imwrite(f'/home/pranav/autocar/scripts/imgs/final/{str(i)}.jpg',cv2.cvtColor(pred_img, cv2.COLOR_BGR2RGB))
                 if dl_engine.human_state == 1:
                     self.ser.write(bytes('0', 'utf-8'))
                     self.ser.flush()

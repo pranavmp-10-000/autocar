@@ -3,7 +3,7 @@ import numpy as np
 import logging
 from threading import Thread
 from onnx_inference import ObjectDetection
-from cv_libs import check_signal_state
+from cv_libs import check_signal_state, get_bbox_area
 import time
 
 TRAFFIC_DET_MODEL_PATH = 'scripts/models/trafficsign.onnx'
@@ -67,9 +67,12 @@ class DLObjectDetecction():
 
     def human_run_inference(self):
         boxes, scores, classes = self.human_engine.infer(
-            self.preproc_img_data, conf_thres=0.3, class_det=0)
-        # ser.baudrate = 115200self.drawn_img = self.draw_boxes(self.image, boxes, 'human')
-        if len(boxes) > 0:
+            self.preproc_img_data, conf_thres=0.5, class_det=0)
+        max_area_idx, max_area = get_bbox_area(boxes)
+       
+        # ser.baudrate = 115200
+        self.drawn_img = self.draw_boxes(self.image, boxes, 'human')
+        if len(boxes) > 0 and max_area>(200*200):
             self.human_state = 1
         else:
             self.human_state = 0
